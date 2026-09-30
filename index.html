@@ -1,1094 +1,608 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>Infinity Timer - Screen Time Reminder</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        :root {
-            --primary-color: #3498db;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --warning-color: #f39c12;
-            --dark-color: #2c3e50;
-            --light-color: #ecf0f1;
-        }
-        
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1a2a6c, #2d5ba3, #3d8bcc);
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 500px;
-            background-color: rgba(0, 0, 0, 0.8);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            margin: auto;
-        }
-        
-        /* Header Section */
-        .header {
-            text-align: center;
-            padding: 20px 15px;
-            background-color: rgba(0, 0, 0, 0.6);
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        h1 {
-            font-size: clamp(1.8rem, 5vw, 2.5rem);
-            margin-bottom: 8px;
-            background: linear-gradient(to right, #ff7e5f, #feb47b);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        
-        .subtitle {
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
-            opacity: 0.9;
-            margin-bottom: 15px;
-        }
-        
-        .notification-status {
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .status-enabled {
-            background-color: rgba(46, 204, 113, 0.2);
-            color: #2ecc71;
-            border: 1px solid #2ecc71;
-        }
-        
-        .status-disabled {
-            background-color: rgba(231, 76, 60, 0.2);
-            color: #e74c3c;
-            border: 1px solid #e74c3c;
-        }
-        
-        /* Timer Section */
-        .timer-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 25px 15px;
-        }
-        
-        .phase-info {
-            font-size: clamp(1.2rem, 4vw, 1.8rem);
-            margin-bottom: 20px;
-            text-align: center;
-            padding: 12px 25px;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            width: 90%;
-            max-width: 400px;
-        }
-        
-        .screen-phase {
-            background-color: rgba(46, 204, 113, 0.3);
-            color: #2ecc71;
-            border: 2px solid #2ecc71;
-        }
-        
-        .rest-phase {
-            background-color: rgba(231, 76, 60, 0.3);
-            color: #e74c3c;
-            border: 2px solid #e74c3c;
-        }
-        
-        .timer-display {
-            font-size: clamp(3rem, 12vw, 5rem);
-            font-weight: bold;
-            margin: 15px 0;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px 30px;
-            border-radius: 15px;
-            border: 3px solid rgba(255, 255, 255, 0.2);
-            text-align: center;
-            width: 90%;
-            max-width: 300px;
-        }
-        
-        /* Controls */
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 20px;
-            justify-content: center;
-            width: 100%;
-        }
-        
-        button {
-            padding: 12px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            flex: 1;
-            min-width: 120px;
-            touch-action: manipulation;
-        }
-        
-        button:active {
-            transform: scale(0.98);
-        }
-        
-        .start-btn {
-            background-color: var(--success-color);
-            color: white;
-        }
-        
-        .stop-btn {
-            background-color: var(--danger-color);
-            color: white;
-        }
-        
-        .reset-btn {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .notification-btn {
-            background-color: var(--warning-color);
-            color: white;
-            width: 100%;
-            margin-top: 10px;
-        }
-        
-        /* Settings */
-        .settings {
-            background-color: rgba(0, 0, 0, 0.4);
-            padding: 20px 15px;
-            border-top: 2px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .setting-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .setting-group:last-child {
-            margin-bottom: 0;
-        }
-        
-        .setting-group h3 {
-            margin-bottom: 12px;
-            font-size: 1.2rem;
-            color: #feb47b;
-            text-align: center;
-        }
-        
-        .time-input {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1.2rem;
-            width: 100%;
-        }
-        
-        .time-input input {
-            width: 80px;
-            padding: 12px;
-            font-size: 1.2rem;
-            text-align: center;
-            border: none;
-            border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            -webkit-appearance: none;
-            -moz-appearance: textfield;
-        }
-        
-        .time-input input::-webkit-inner-spin-button,
-        .time-input input::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        
-        .time-input span {
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        
-        .volume-control {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 10px;
-            width: 100%;
-        }
-        
-        .volume-slider {
-            width: 70%;
-            max-width: 200px;
-            height: 8px;
-            -webkit-appearance: none;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            outline: none;
-        }
-        
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: var(--warning-color);
-            cursor: pointer;
-        }
-        
-        .volume-slider::-moz-range-thumb {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: var(--warning-color);
-            cursor: pointer;
-            border: none;
-        }
-        
-        /* Test Buttons */
-        .test-section {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-            width: 100%;
-            align-items: center;
-        }
-        
-        .test-btn {
-            padding: 10px 15px;
-            font-size: 0.95rem;
-            background-color: #9b59b6;
-            color: white;
-            width: 90%;
-            max-width: 300px;
-        }
-        
-        /* Instructions */
-        .instructions {
-            padding: 20px 15px;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-top: 2px solid rgba(255, 255, 255, 0.1);
-            line-height: 1.5;
-        }
-        
-        .instructions h3 {
-            color: #feb47b;
-            margin-bottom: 12px;
-            font-size: 1.3rem;
-            text-align: center;
-        }
-        
-        .instructions ul {
-            padding-left: 20px;
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-        
-        .instructions li {
-            margin-bottom: 8px;
-        }
-        
-        /* Mobile Specific Styles */
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                border-radius: 15px;
-            }
-            
-            .header {
-                padding: 15px 10px;
-            }
-            
-            .timer-section {
-                padding: 20px 10px;
-            }
-            
-            .timer-display {
-                padding: 12px 20px;
-                width: 95%;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            button {
-                width: 90%;
-                max-width: 250px;
-            }
-            
-            .settings {
-                padding: 15px 10px;
-            }
-            
-            .instructions {
-                padding: 15px 10px;
-            }
-            
-            .notification-status {
-                font-size: 0.85rem;
-                padding: 8px 10px;
-            }
-        }
-        
-        /* Desktop Specific Styles */
-        @media (min-width: 768px) {
-            body {
-                padding: 20px;
-            }
-            
-            .container {
-                max-width: 600px;
-            }
-            
-            .controls {
-                flex-wrap: nowrap;
-            }
-            
-            button {
-                min-width: 140px;
-            }
-        }
-        
-        /* Tablet Styles */
-        @media (min-width: 481px) and (max-width: 767px) {
-            .container {
-                max-width: 450px;
-            }
-            
-            .controls {
-                flex-wrap: wrap;
-            }
-            
-            button {
-                min-width: 130px;
-            }
-        }
-        
-        /* Dark Mode Support */
-        @media (prefers-color-scheme: dark) {
-            .container {
-                background-color: rgba(20, 20, 30, 0.9);
-            }
-        }
-        
-        /* Prevent text selection on buttons */
-        button {
-            user-select: none;
-        }
-        
-        /* Focus styles for accessibility */
-        button:focus,
-        input:focus {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-        
-        /* Loading animation */
-        @keyframes pulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
-        }
-        
-        .loading {
-            animation: pulse 1.5s infinite;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Myanmar Retail Price Calculator</title>
+
+<!-- Inline SVG App Icon -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='110' fill='%231d6ff2'/%3E%3Crect x='105' y='95' width='302' height='322' rx='38' fill='white'/%3E%3Crect x='140' y='135' width='232' height='72' rx='15' fill='%23eaf2ff'/%3E%3Ctext x='256' y='184' text-anchor='middle' font-family='Arial' font-size='45' font-weight='bold' fill='%231d6ff2'%3E₭%3C/text%3E%3Cg fill='%231d6ff2'%3E%3Crect x='145' y='235' width='62' height='48' rx='10'/%3E%3Crect x='225' y='235' width='62' height='48' rx='10'/%3E%3Crect x='305' y='235' width='62' height='48' rx='10'/%3E%3Crect x='145' y='300' width='62' height='48' rx='10'/%3E%3Crect x='225' y='300' width='62' height='48' rx='10'/%3E%3Crect x='305' y='300' width='62' height='48' rx='10'/%3E%3C/g%3E%3C/svg%3E">
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 16px;
+    background: #f4f7fb;
+    color: #172033;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Noto Sans Myanmar",
+        "Myanmar Text",
+        Arial,
+        sans-serif;
+}
+
+.app {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin: 8px 0 18px;
+}
+
+.icon {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 10px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 22px rgba(29,111,242,.18);
+}
+
+.icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+h1 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.3;
+    font-weight: 800;
+}
+
+.subtitle {
+    margin: 6px 0 0;
+    color: #687386;
+    font-size: 13px;
+}
+
+/* Card */
+.card {
+    background: #fff;
+    border: 1px solid #e1e6ef;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 8px 28px rgba(20,35,60,.06);
+}
+
+/* Input */
+.label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.input-wrap {
+    position: relative;
+}
+
+.cost-input {
+    width: 100%;
+    height: 52px;
+    padding: 0 15px;
+    border: 1.5px solid #d5dce7;
+    border-radius: 12px;
+    background: #fff;
+    color: #172033;
+    font-size: 17px;
+    font-weight: 700;
+    outline: none;
+    transition: .2s;
+}
+
+.cost-input:focus {
+    border-color: #1d6ff2;
+    box-shadow: 0 0 0 3px rgba(29,111,242,.10);
+}
+
+/* Native search clear button only */
+.cost-input::-webkit-search-cancel-button {
+    cursor: pointer;
+}
+
+/* Result */
+.result {
+    margin-top: 18px;
+}
+
+.result-title {
+    margin-bottom: 10px;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+/* Table */
+.table-wrap {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid #e1e6ef;
+    border-radius: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+thead {
+    background: #f1f5fb;
+}
+
+th,
+td {
+    padding: 11px 5px;
+    text-align: center;
+    vertical-align: middle;
+    border-bottom: 1px solid #e8edf4;
+
+    /* Phone-friendly */
+    font-size: 11px;
+    line-height: 1.25;
+
+    white-space: nowrap;
+}
+
+th {
+    color: #566176;
+    font-weight: 800;
+}
+
+td {
+    color: #202b3c;
+    font-weight: 600;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.qty {
+    font-weight: 800;
+    color: #1d6ff2;
+}
+
+.price {
+    color: #087443;
+    font-weight: 900;
+}
+
+.profit {
+    color: #b05a00;
+    font-weight: 800;
+}
+
+/* Empty state */
+.empty {
+    text-align: center;
+    padding: 28px 12px;
+    color: #8993a4;
+    font-size: 13px;
+}
+
+/* Info */
+.info {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #f6f8fc;
+    color: #687386;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* Smaller phones */
+@media (max-width: 380px) {
+
+    body {
+        padding: 10px;
+    }
+
+    .card {
+        padding: 13px;
+        border-radius: 13px;
+    }
+
+    h1 {
+        font-size: 21px;
+    }
+
+    .subtitle {
+        font-size: 11px;
+    }
+
+    .cost-input {
+        height: 48px;
+        font-size: 16px;
+    }
+
+    th,
+    td {
+        padding: 9px 2px;
+        font-size: 9px;
+    }
+
+    .result-title {
+        font-size: 13px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 330px) {
+
+    body {
+        padding: 7px;
+    }
+
+    .card {
+        padding: 10px;
+    }
+
+    th,
+    td {
+        padding: 8px 1px;
+        font-size: 8px;
+    }
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-infinity"></i> Infinity Timer</h1>
-            <p class="subtitle">Screen Time & Rest Time Reminder</p>
-            <div class="notification-status status-disabled" id="notificationStatus">
-                <i class="fas fa-bell-slash"></i>
-                <span>Enable notifications for alerts</span>
-            </div>
-        </div>
-        
-        <div class="timer-section">
-            <div class="phase-info screen-phase" id="phaseInfo">
-                Screen Time - Focus on your work
-            </div>
-            
-            <div class="timer-display" id="timerDisplay">
-                20:00
-            </div>
-            
-            <div class="controls">
-                <button class="start-btn" id="startBtn">
-                    <i class="fas fa-play"></i> Start
-                </button>
-                <button class="stop-btn" id="stopBtn">
-                    <i class="fas fa-pause"></i> Pause
-                </button>
-                <button class="reset-btn" id="resetBtn">
-                    <i class="fas fa-redo"></i> Reset
-                </button>
-            </div>
-            
-            <button class="notification-btn" id="enableNotificationBtn">
-                <i class="fas fa-bell"></i> Enable Notifications
-            </button>
-            
-            <div class="test-section">
-                <button class="test-btn" id="testScreenSound">
-                    <i class="fas fa-desktop"></i> Test Screen Alert
-                </button>
-                <button class="test-btn" id="testRestSound">
-                    <i class="fas fa-bed"></i> Test Rest Alert
-                </button>
-            </div>
-        </div>
-        
-        <div class="settings">
-            <div class="setting-group">
-                <h3><i class="fas fa-desktop"></i> Screen Time</h3>
-                <div class="time-input">
-                    <input type="number" id="screenTime" min="1" max="120" value="20">
-                    <span>minutes</span>
-                </div>
-            </div>
-            
-            <div class="setting-group">
-                <h3><i class="fas fa-bed"></i> Rest Time</h3>
-                <div class="time-input">
-                    <input type="number" id="restTime" min="1" max="60" value="3">
-                    <span>minutes</span>
-                </div>
-            </div>
-            
-            <div class="setting-group">
-                <h3><i class="fas fa-volume-up"></i> Sound Volume</h3>
-                <div class="volume-control">
-                    <i class="fas fa-volume-down"></i>
-                    <input type="range" min="0" max="1" step="0.1" value="0.7" class="volume-slider" id="volumeSlider">
-                    <i class="fas fa-volume-up"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="instructions">
-            <h3><i class="fas fa-info-circle"></i> How to Use</h3>
-            <ul>
-                <li><strong>First:</strong> Enable notifications for alerts on all screens</li>
-                <li><strong>Mobile:</strong> Keep browser open or running in background</li>
-                <li><strong>Desktop:</strong> Works even with other apps open</li>
-                <li>20 minutes work → 3 minutes break → Repeat forever</li>
-                <li>Alerts work on mobile & desktop when timer completes</li>
-                <li>Adjust times as needed for your routine</li>
-            </ul>
-        </div>
+
+<div class="app">
+
+    <div class="header">
+
+        <h3>Retail Price Calculator</h3>
+
     </div>
 
-    <script>
-        // DOM elements
-        const timerDisplay = document.getElementById('timerDisplay');
-        const phaseInfo = document.getElementById('phaseInfo');
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const screenTimeInput = document.getElementById('screenTime');
-        const restTimeInput = document.getElementById('restTime');
-        const volumeSlider = document.getElementById('volumeSlider');
-        const testScreenSoundBtn = document.getElementById('testScreenSound');
-        const testRestSoundBtn = document.getElementById('testRestSound');
-        const enableNotificationBtn = document.getElementById('enableNotificationBtn');
-        const notificationStatus = document.getElementById('notificationStatus');
-        
-        // Check if mobile device
-        const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|Windows Phone/i.test(navigator.userAgent);
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        
-        // Audio context for sound generation
-        let audioContext;
-        let currentVolume = 0.7;
-        
-        // Timer variables
-        let timer;
-        let isRunning = false;
-        let isScreenPhase = true;
-        let timeLeft = 20 * 60; // 20 minutes in seconds
-        let totalTime = 20 * 60;
-        
-        // Notification permission
-        let notificationPermission = false;
-        let serviceWorkerRegistration = null;
-        
-        // Initialize the timer display
-        updateTimerDisplay();
-        
-        // Initialize audio context
-        initAudio();
-        
-        // Check notification permission on load
-        checkNotificationPermission();
-        
-        // Event listeners
-        startBtn.addEventListener('click', startTimer);
-        stopBtn.addEventListener('click', stopTimer);
-        resetBtn.addEventListener('click', resetTimer);
-        
-        screenTimeInput.addEventListener('change', updateTimers);
-        restTimeInput.addEventListener('change', updateTimers);
-        
-        volumeSlider.addEventListener('input', updateVolume);
-        
-        testScreenSoundBtn.addEventListener('click', () => testScreenTimeAlert());
-        testRestSoundBtn.addEventListener('click', () => testRestTimeAlert());
-        
-        enableNotificationBtn.addEventListener('click', requestNotificationPermission);
-        
-        // Handle page visibility (for mobile)
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        
-        // Check if browser supports notifications
-        if (!("Notification" in window)) {
-            updateNotificationStatus("This browser doesn't support notifications", false);
+
+    <div class="card">
+
+        <label class="label" for="costInput">
+            100 လုံး Cost Price (MMK)
+        </label>
+
+        <!-- Native clear button only -->
+        <div class="input-wrap">
+            <input
+                id="costInput"
+                class="cost-input"
+                type="search"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="ဥပမာ - 38000"
+                aria-label="100 လုံး Cost Price"
+            >
+        </div>
+
+
+        <div class="result">
+
+            <div class="result-title">
+                Retail Price Result
+            </div>
+
+            <div id="resultArea">
+
+                <div class="empty">
+                    Cost Price ထည့်ပါ
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="info">
+            <strong>Pricing Logic</strong><br>
+            10 လုံး = Base Markup + 10%<br>
+            1 လုံး = Base Markup + 15%<br>
+            Selling Price ကို MMK denomination အတိုင်း အပေါ်တက် Round ပြုလုပ်ထားသည်။
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   PRICING SETTINGS
+   ========================================= */
+
+const costInput = document.getElementById("costInput");
+const resultArea = document.getElementById("resultArea");
+
+
+/*
+   Base Markup
+   100 လုံး Cost Price ပေါ်မူတည်ပြီး
+   Base Markup သတ်မှတ်သည်။
+*/
+function getBaseMarkup(cost100) {
+
+    if (cost100 <= 3000) {
+        return 35;
+    }
+
+    if (cost100 <= 5000) {
+        return 32;
+    }
+
+    if (cost100 <= 10000) {
+        return 28;
+    }
+
+    if (cost100 <= 20000) {
+        return 25;
+    }
+
+    if (cost100 <= 30000) {
+        return 23;
+    }
+
+    if (cost100 <= 50000) {
+        return 20;
+    }
+
+    if (cost100 <= 100000) {
+        return 18;
+    }
+
+    return 15;
+}
+
+
+/*
+   MMK rounding
+*/
+function getRoundStep(price) {
+
+    if (price < 1000) {
+        return 50;
+    }
+
+    if (price < 5000) {
+        return 100;
+    }
+
+    if (price < 10000) {
+        return 200;
+    }
+
+    if (price < 50000) {
+        return 500;
+    }
+
+    if (price < 100000) {
+        return 1000;
+    }
+
+    if (price < 500000) {
+        return 5000;
+    }
+
+    return 10000;
+}
+
+
+/*
+   Round selling price upward
+*/
+function roundMMK(price) {
+
+    const step = getRoundStep(price);
+
+    return Math.ceil(price / step) * step;
+}
+
+
+/*
+   Number formatting
+*/
+function money(number) {
+
+    return Math.round(number).toLocaleString("en-US");
+}
+
+
+/*
+   Main calculation
+*/
+function calculate() {
+
+    /*
+       Remove commas and everything
+       except numbers
+    */
+    const raw = costInput.value
+        .replace(/,/g, "")
+        .replace(/[^\d]/g, "");
+
+    const cost100 = Number(raw);
+
+
+    /*
+       Empty / invalid
+    */
+    if (!cost100 || cost100 <= 0) {
+
+        resultArea.innerHTML = `
+            <div class="empty">
+                Cost Price ထည့်ပါ
+            </div>
+        `;
+
+        return;
+    }
+
+
+    /*
+       Base markup
+    */
+    const baseMarkup = getBaseMarkup(cost100);
+
+
+    /*
+       ONLY 10 + 1
+    */
+    const quantities = [
+        {
+            qty: 10,
+            extraMarkup: 10
+        },
+        {
+            qty: 1,
+            extraMarkup: 15
         }
-        
-        // Mobile-specific setup
-        if (isMobile) {
-            setupMobileFeatures();
-        }
-        
-        // Function to setup mobile-specific features
-        function setupMobileFeatures() {
-            console.log("Mobile device detected");
-            
-            // Add mobile-specific instructions
-            const instructions = document.querySelector('.instructions ul');
-            if (isIOS) {
-                const iosInstruction = document.createElement('li');
-                iosInstruction.innerHTML = "<strong>iOS:</strong> Keep Safari open or enable Background App Refresh for best results";
-                instructions.appendChild(iosInstruction);
-            } else {
-                const androidInstruction = document.createElement('li');
-                androidInstruction.innerHTML = "<strong>Android:</strong> Keep browser in recent apps for background alerts";
-                instructions.appendChild(androidInstruction);
-            }
-            
-            // Update UI for mobile
-            document.querySelector('.subtitle').textContent += " (Mobile Optimized)";
-        }
-        
-        // Function to handle page visibility changes
-        function handleVisibilityChange() {
-            if (document.hidden) {
-                console.log("Page is now hidden (user switched tabs or apps)");
-            } else {
-                console.log("Page is now visible");
-                // Resume audio context if needed
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-            }
-        }
-        
-        // Function to check notification permission
-        function checkNotificationPermission() {
-            if (!("Notification" in window)) {
-                updateNotificationStatus("Browser doesn't support notifications", false);
-                return;
-            }
-            
-            if (Notification.permission === "granted") {
-                notificationPermission = true;
-                updateNotificationStatus("Notifications enabled for all screens", true);
-                enableNotificationBtn.innerHTML = '<i class="fas fa-bell"></i> Notifications Enabled';
-                enableNotificationBtn.style.backgroundColor = "#2ecc71";
-                enableNotificationBtn.disabled = true;
-            } else if (Notification.permission === "denied") {
-                updateNotificationStatus("Notifications blocked. Enable in browser settings", false);
-                enableNotificationBtn.innerHTML = '<i class="fas fa-bell-slash"></i> Notifications Blocked';
-                enableNotificationBtn.style.backgroundColor = "#e74c3c";
-            } else {
-                updateNotificationStatus("Enable notifications for alerts on all screens", false);
-            }
-        }
-        
-        // Function to update notification status display
-        function updateNotificationStatus(message, enabled) {
-            notificationStatus.innerHTML = `<i class="fas ${enabled ? 'fa-bell' : 'fa-bell-slash'}"></i> <span>${message}</span>`;
-            notificationStatus.className = `notification-status ${enabled ? 'status-enabled' : 'status-disabled'}`;
-        }
-        
-        // Function to request notification permission
-        function requestNotificationPermission() {
-            if (!("Notification" in window)) {
-                alert("This browser does not support notifications");
-                return;
-            }
-            
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    notificationPermission = true;
-                    updateNotificationStatus("Notifications enabled! You'll receive alerts even when using other apps.", true);
-                    enableNotificationBtn.innerHTML = '<i class="fas fa-bell"></i> Notifications Enabled';
-                    enableNotificationBtn.style.backgroundColor = "#2ecc71";
-                    enableNotificationBtn.disabled = true;
-                    
-                    // Show a test notification
-                    showNotification(
-                        "Infinity Timer Started", 
-                        "Notifications are now enabled. You'll receive alerts on all screens.",
-                        "screen"
-                    );
-                    
-                    // For mobile, also vibrate if supported
-                    if (isMobile && "vibrate" in navigator) {
-                        navigator.vibrate([200, 100, 200]);
-                    }
-                } else {
-                    updateNotificationStatus("Notifications blocked. Please allow in browser settings.", false);
-                    enableNotificationBtn.innerHTML = '<i class="fas fa-bell-slash"></i> Notifications Blocked';
-                    enableNotificationBtn.style.backgroundColor = "#e74c3c";
-                }
-            });
-        }
-        
-        // Function to show notification (works on mobile and desktop)
-        function showNotification(title, message, type) {
-            // Show browser notification if permission granted
-            if (notificationPermission && "Notification" in window) {
-                const icon = type === "screen" 
-                    ? "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f4bb.png" 
-                    : "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f4a4.png";
-                
-                const notification = new Notification(title, {
-                    body: message,
-                    icon: icon,
-                    requireInteraction: true,
-                    tag: "infinity-timer",
-                    silent: false
-                });
-                
-                // Close notification after 10 seconds
-                setTimeout(() => {
-                    notification.close();
-                }, 10000);
-                
-                // On click, focus the window
-                notification.onclick = function() {
-                    window.focus();
-                    this.close();
-                };
-            }
-            
-            // Also show in-page alert for mobile when app is active
-            if (!document.hidden) {
-                showInPageAlert(title, message, type);
-            }
-            
-            // Play sound
-            if (type === "screen") {
-                playScreenTimeSound();
-            } else {
-                playRestTimeSound();
-            }
-            
-            // Vibrate on mobile if supported
-            if (isMobile && "vibrate" in navigator) {
-                const vibrationPattern = type === "screen" ? [300, 100, 300, 100, 300] : [200, 100, 200, 100, 200];
-                navigator.vibrate(vibrationPattern);
-            }
-        }
-        
-        // Function to show in-page alert (when page is visible)
-        function showInPageAlert(title, message, type) {
-            // Create alert element
-            const alertDiv = document.createElement('div');
-            alertDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: ${type === 'screen' ? '#2ecc71' : '#e74c3c'};
-                color: white;
-                padding: 15px 20px;
-                border-radius: 10px;
-                z-index: 1000;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                text-align: center;
-                max-width: 90%;
-                animation: slideIn 0.5s ease;
-            `;
-            
-            alertDiv.innerHTML = `
-                <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;">${title}</div>
-                <div style="font-size: 0.9rem;">${message}</div>
-            `;
-            
-            document.body.appendChild(alertDiv);
-            
-            // Remove after 5 seconds
-            setTimeout(() => {
-                alertDiv.style.animation = 'slideOut 0.5s ease';
-                setTimeout(() => {
-                    if (alertDiv.parentNode) {
-                        alertDiv.parentNode.removeChild(alertDiv);
-                    }
-                }, 500);
-            }, 5000);
-            
-            // Add CSS for animation
-            if (!document.getElementById('alert-animations')) {
-                const style = document.createElement('style');
-                style.id = 'alert-animations';
-                style.textContent = `
-                    @keyframes slideIn {
-                        from { top: -100px; opacity: 0; }
-                        to { top: 20px; opacity: 1; }
-                    }
-                    @keyframes slideOut {
-                        from { top: 20px; opacity: 1; }
-                        to { top: -100px; opacity: 0; }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-        }
-        
-        // Function to initialize audio
-        function initAudio() {
-            try {
-                // Create audio context
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Resume audio context on user interaction (browser requirement)
-                document.addEventListener('click', () => {
-                    if (audioContext && audioContext.state === 'suspended') {
-                        audioContext.resume();
-                    }
-                }, { once: true });
-                
-                console.log("Audio context initialized successfully");
-            } catch (error) {
-                console.error("Error initializing audio context:", error);
-            }
-        }
-        
-        // Function to create and play a sound
-        function playSound(frequency = 440, duration = 0.5, type = 'sine') {
-            if (!audioContext) {
-                console.error("Audio context not initialized");
-                return;
-            }
-            
-            try {
-                // Resume if suspended
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                
-                // Create oscillator
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                // Configure oscillator
-                oscillator.type = type;
-                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-                
-                // Configure volume
-                gainNode.gain.setValueAtTime(currentVolume, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-                
-                // Connect nodes
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                // Start and stop oscillator
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + duration);
-                
-                return true;
-            } catch (error) {
-                console.error("Error playing sound:", error);
-                return false;
-            }
-        }
-        
-        // Function to play screen time sound
-        function playScreenTimeSound() {
-            // Play a sequence of beeps for screen time alert
-            playSound(440, 0.3, 'sine');
-            setTimeout(() => playSound(440, 0.3, 'sine'), 400);
-            setTimeout(() => playSound(440, 0.3, 'sine'), 800);
-            setTimeout(() => playSound(880, 0.5, 'sine'), 1200);
-        }
-        
-        // Function to play rest time sound
-        function playRestTimeSound() {
-            // Play a different sequence for rest time alert
-            playSound(523.25, 0.4, 'sine'); // C5
-            setTimeout(() => playSound(659.25, 0.4, 'sine'), 500); // E5
-            setTimeout(() => playSound(783.99, 0.4, 'sine'), 1000); // G5
-            setTimeout(() => playSound(1046.50, 0.6, 'sine'), 1500); // C6
-        }
-        
-        // Function to test screen time alert
-        function testScreenTimeAlert() {
-            const screenMinutes = parseInt(screenTimeInput.value);
-            showNotification(
-                "Screen Time Test", 
-                `Your screen time ${screenMinutes} minutes up`, 
-                "screen"
-            );
-        }
-        
-        // Function to test rest time alert
-        function testRestTimeAlert() {
-            const restMinutes = parseInt(restTimeInput.value);
-            showNotification(
-                "Rest Time Test", 
-                `Your rest time ${restMinutes} minutes up`, 
-                "rest"
-            );
-        }
-        
-        // Function to start the timer
-        function startTimer() {
-            if (isRunning) return;
-            
-            isRunning = true;
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-            startBtn.innerHTML = '<i class="fas fa-play"></i> Running...';
-            startBtn.classList.add('loading');
-            
-            // Resume audio context if needed
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-            
-            // Show start notification if permission granted
-            if (notificationPermission) {
-                showNotification(
-                    "Infinity Timer Started", 
-                    `${screenTimeInput.value} min work, ${restTimeInput.value} min rest`, 
-                    "screen"
-                );
-            }
-            
-            // For mobile, request wake lock if available
-            let wakeLock = null;
-            if ('wakeLock' in navigator && isMobile) {
-                try {
-                    navigator.wakeLock.request('screen').then(wl => {
-                        wakeLock = wl;
-                        console.log("Wake lock acquired");
-                    });
-                } catch (err) {
-                    console.log("Wake lock not supported:", err);
-                }
-            }
-            
-            // Start timer interval
-            timer = setInterval(() => {
-                timeLeft--;
-                updateTimerDisplay();
-                
-                if (timeLeft <= 0) {
-                    // Time's up - switch phase
-                    switchPhase();
-                }
-            }, 1000);
-            
-            // Store wake lock for cleanup
-            if (wakeLock) {
-                window.timerWakeLock = wakeLock;
-            }
-        }
-        
-        // Function to stop the timer
-        function stopTimer() {
-            if (!isRunning) return;
-            
-            clearInterval(timer);
-            isRunning = false;
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
-            startBtn.classList.remove('loading');
-            
-            // Release wake lock if acquired
-            if (window.timerWakeLock) {
-                window.timerWakeLock.release()
-                    .then(() => {
-                        console.log("Wake lock released");
-                        window.timerWakeLock = null;
-                    });
-            }
-            
-            // Show stop notification if permission granted
-            if (notificationPermission) {
-                showNotification(
-                    "Timer Paused", 
-                    "The infinity timer has been paused", 
-                    "rest"
-                );
-            }
-        }
-        
-        // Function to reset the timer
-        function resetTimer() {
-            stopTimer();
-            isScreenPhase = true;
-            updateTimers();
-            updateTimerDisplay();
-            updatePhaseInfo();
-        }
-        
-        // Function to switch between screen time and rest time
-        function switchPhase() {
-            isScreenPhase = !isScreenPhase;
-            
-            if (isScreenPhase) {
-                // Switching to Screen Time (Rest Time just finished)
-                totalTime = parseInt(screenTimeInput.value) * 60;
-                const restMinutes = parseInt(restTimeInput.value);
-                
-                // Show notification
-                showNotification(
-                    "Rest Time Complete!", 
-                    `Your rest time ${restMinutes} minutes up`, 
-                    "rest"
-                );
-                
-            } else {
-                // Switching to Rest Time (Screen Time just finished)
-                totalTime = parseInt(restTimeInput.value) * 60;
-                const screenMinutes = parseInt(screenTimeInput.value);
-                
-                // Show notification
-                showNotification(
-                    "Screen Time Complete!", 
-                    `Your screen time ${screenMinutes} minutes up`, 
-                    "screen"
-                );
-            }
-            
-            timeLeft = totalTime;
-            updateTimerDisplay();
-            updatePhaseInfo();
-        }
-        
-        // Function to update timer display
-        function updateTimerDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            
-            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            // Visual feedback when time is running low
-            if (timeLeft <= 60) {
-                timerDisplay.style.color = '#ff7e5f';
-                timerDisplay.style.textShadow = '0 0 20px rgba(255, 126, 95, 0.8)';
-            } else {
-                timerDisplay.style.color = 'white';
-                timerDisplay.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.5)';
-            }
-        }
-        
-        // Function to update phase info display
-        function updatePhaseInfo() {
-            if (isScreenPhase) {
-                phaseInfo.textContent = "Screen Time - Focus on your work";
-                phaseInfo.className = "phase-info screen-phase";
-            } else {
-                phaseInfo.textContent = "Rest Time - Take a break";
-                phaseInfo.className = "phase-info rest-phase";
-            }
-        }
-        
-        // Function to update timers based on input values
-        function updateTimers() {
-            if (isScreenPhase) {
-                totalTime = parseInt(screenTimeInput.value) * 60;
-            } else {
-                totalTime = parseInt(restTimeInput.value) * 60;
-            }
-            
-            // If timer is not running, update the timeLeft to reflect the new total time
-            if (!isRunning) {
-                timeLeft = totalTime;
-                updateTimerDisplay();
-            }
-            
-            // Update phase info text
-            updatePhaseInfo();
-        }
-        
-        // Function to update volume
-        function updateVolume() {
-            currentVolume = parseFloat(volumeSlider.value);
-        }
-        
-        // Initialize button states
-        stopBtn.disabled = true;
-        
-        // Show welcome message
-        setTimeout(() => {
-            if (isMobile) {
-                console.log("Infinity Timer ready for mobile use");
-            } else {
-                console.log("Infinity Timer ready for desktop use");
-            }
-        }, 1000);
-        
-        // Handle page before unload
-        window.addEventListener('beforeunload', function() {
-            if (isRunning) {
-                // Release wake lock if acquired
-                if (window.timerWakeLock) {
-                    window.timerWakeLock.release();
-                }
-            }
-        });
-    </script>
+    ];
+
+
+    let rows = "";
+
+
+    quantities.forEach(item => {
+
+        /*
+           Cost per quantity
+        */
+        const quantityCost =
+            cost100 / 100 * item.qty;
+
+
+        /*
+           Retail markup
+        */
+        const markup =
+            baseMarkup + item.extraMarkup;
+
+
+        /*
+           Raw selling price
+        */
+        const rawSelling =
+            quantityCost * (1 + markup / 100);
+
+
+        /*
+           Rounded retail price
+        */
+        const sellingPrice =
+            roundMMK(rawSelling);
+
+
+        /*
+           Actual profit
+        */
+        const profit =
+            sellingPrice - quantityCost;
+
+
+        /*
+           Actual profit %
+           based on cost
+        */
+        const profitPercent =
+            (profit / quantityCost) * 100;
+
+
+        rows += `
+            <tr>
+
+                <td class="qty">
+                    ${item.qty} လုံး
+                </td>
+
+                <td>
+                    ${money(quantityCost)}
+                </td>
+
+                <td>
+                    ${markup}%
+                </td>
+
+                <td class="price">
+                    ${money(sellingPrice)}
+                </td>
+
+                <td class="profit">
+                    ${money(profit)}
+                </td>
+
+                <td>
+                    ${profitPercent.toFixed(2)}%
+                </td>
+
+            </tr>
+        `;
+    });
+
+
+    /*
+       Result table
+    */
+    resultArea.innerHTML = `
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>အရေအတွက်</th>
+                        <th>Cost</th>
+                        <th>Markup</th>
+                        <th>ရောင်းဈေး</th>
+                        <th>အမြတ်</th>
+                        <th>အမြတ် %</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${rows}
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+}
+
+
+/*
+   Auto calculate while typing
+*/
+costInput.addEventListener("input", calculate);
+
+
+/*
+   Also calculate after paste/change
+*/
+costInput.addEventListener("change", calculate);
+
+</script>
+
 </body>
 </html>
